@@ -2,7 +2,7 @@
   "name": "hedyla-maps-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/scriptndestroy/hedyla-maps-app",
+  "homepage": "https://scriptndestroy.github.io/hedyla-maps-app/",
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.1",
     "@testing-library/jest-dom": "^4.2.4",
