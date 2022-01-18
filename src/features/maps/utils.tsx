@@ -35,6 +35,6 @@ export const useDeepCompareEffectForMaps = (
   callback: EffectCallback,
   dependencies: any[]
 ) => {
-    useEffect(callback,dependencies.map(useDeepCompareMemoize), callback); 
+    useEffect(callback,dependencies.map(useDeepCompareMemoize)); 
   //useEffect(callback,[dependencies.map(useDeepCompareMemoize), callback]);
 };
