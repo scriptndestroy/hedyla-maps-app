@@ -4,3 +4,29 @@ export function fetchCount(amount = 1) {
     setTimeout(() => resolve({ data: amount }), 500)
   );
 }
+
+export const calculateAndDisplayRoute = (
+  directionsService: google.maps.DirectionsService,
+  directionsRenderer: google.maps.DirectionsRenderer,
+  start: string,
+  end: string
+) => {
+  return directionsService
+    .route({
+      origin: {
+        query: start.toString(),
+      },
+      destination: {
+        query: end.toString(),
+      },
+      travelMode: google.maps.TravelMode.DRIVING,
+    })
+    .then((response: any) => {
+      directionsRenderer.setDirections(response);
+      return JSON.stringify(response.routes);
+    })
+    .catch((e: any) => {
+      window.alert(`Directions request failed due to ${e}`);
+      return e;
+    });
+};
