@@ -6,6 +6,9 @@ import {
   useRef,
   useState,
 } from "react";
+
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { callDirectionsAPI, selectMap } from "./mapSlice";
 import { useDeepCompareEffectForMaps } from "./utils";
 
 interface MapProps extends google.maps.MapOptions {
@@ -14,7 +17,7 @@ interface MapProps extends google.maps.MapOptions {
   onIdle?: (map: google.maps.Map) => void;
 }
 
-export const Map: React.FC<MapProps> = ({
+const Map: React.FC<MapProps> = ({
   onClick,
   onIdle,
   children,
@@ -23,6 +26,11 @@ export const Map: React.FC<MapProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
+  const mapsSelector = useAppSelector(selectMap);
+  let directionsRenderer = new google.maps.DirectionsRenderer();
+  let directionsService = new google.maps.DirectionsService();
+
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (ref.current && !map) {
@@ -51,8 +59,25 @@ export const Map: React.FC<MapProps> = ({
       if (onIdle) {
         map.addListener("idle", () => onIdle(map));
       }
+      directionsRenderer.setMap(map);
     }
   }, [map, onClick, onIdle]);
+
+  useEffect(() => {
+    if (mapsSelector.start && mapsSelector.end) {
+      console.log("pasamos por aqui");
+      let start = mapsSelector.start;
+      let end = mapsSelector.end;
+      dispatch(
+        callDirectionsAPI({
+          directionsService,
+          directionsRenderer,
+          start,
+          end,
+        })
+      );
+    }
+  }, [mapsSelector.start, mapsSelector.end]);
 
   return (
     <>
@@ -66,3 +91,5 @@ export const Map: React.FC<MapProps> = ({
     </>
   );
 };
+
+export default Map;
