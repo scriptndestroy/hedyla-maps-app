@@ -16,6 +16,8 @@ interface MapProps extends google.maps.MapOptions {
   onClick?: (e: google.maps.MapMouseEvent) => void;
   onIdle?: (map: google.maps.Map) => void;
 }
+var directionsRenderer: any;
+var directionsService: any;
 
 const Map: React.FC<MapProps> = ({
   onClick,
@@ -26,15 +28,17 @@ const Map: React.FC<MapProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
+
   const mapsSelector = useAppSelector(selectMap);
-  let directionsRenderer = new google.maps.DirectionsRenderer();
-  let directionsService = new google.maps.DirectionsService();
+  // directionsRenderer.setMap(map ||null);
 
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (ref.current && !map) {
       setMap(new window.google.maps.Map(ref.current, {}));
+      directionsRenderer = new window.google.maps.DirectionsRenderer();
+      directionsService = new window.google.maps.DirectionsService();
     }
   }, [ref, map]);
 
@@ -43,6 +47,7 @@ const Map: React.FC<MapProps> = ({
   useDeepCompareEffectForMaps(() => {
     if (map) {
       map.setOptions(options);
+      directionsRenderer.setMap(map);
     }
   }, [map, options]);
 
@@ -59,24 +64,26 @@ const Map: React.FC<MapProps> = ({
       if (onIdle) {
         map.addListener("idle", () => onIdle(map));
       }
-      directionsRenderer.setMap(map);
     }
   }, [map, onClick, onIdle]);
 
   useEffect(() => {
     if (mapsSelector.start && mapsSelector.end) {
-      console.log("pasamos por aqui");
       let start = mapsSelector.start;
       let end = mapsSelector.end;
+      directionsRenderer.setMap(null);
       dispatch(
         callDirectionsAPI({
           directionsService,
           directionsRenderer,
           start,
           end,
+          map,
         })
       );
+      directionsRenderer.setMap(map);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapsSelector.start, mapsSelector.end]);
 
   return (

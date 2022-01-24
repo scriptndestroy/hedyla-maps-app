@@ -4,7 +4,8 @@ import mapReducer, {
 
 describe('counter reducer', () => {
   const initialState: MapState = {
-    
+    fee:'',
+    price: '',
     end: '',
     start: '',
     status: 'idle',
