@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { calculateAndDisplayRoute } from "../counter/counterAPI";
+import { calculateAndDisplayRoute } from "./mapsAPI";
 
 export interface MapState {
   distance: number;
@@ -9,6 +9,7 @@ export interface MapState {
   price: string;
   start: string;
   status: "idle" | "loading" | "failed";
+  errorMsg: any;
 }
 
 const initialState: MapState = {
@@ -18,19 +19,25 @@ const initialState: MapState = {
   price: "",
   start: "",
   status: "idle",
+  errorMsg: null,
 };
 
 export const callDirectionsAPI = createAsyncThunk(
   "maps/callDirectionsAPI",
-  async (data: any) => {
-    const response = await calculateAndDisplayRoute(
+  async (data: any, { rejectWithValue }) => {
+    const response: any = await calculateAndDisplayRoute(
       data.directionsService,
       data.directionsRenderer,
       data.start,
       data.end
     );
     // The value we return becomes the `fulfilled` action payload
-    return response;
+    debugger;
+    if (response.value) {
+      return response;
+    } else {
+      return rejectWithValue(response);
+    }
   }
 );
 
@@ -59,7 +66,12 @@ export const mapSlice = createSlice({
       })
       .addCase(callDirectionsAPI.fulfilled, (state, action) => {
         state.status = "idle";
-        state.distance = JSON.parse(action.payload)[0].legs[0].distance?.value;
+        state.distance = action.payload;
+      })
+      .addCase(callDirectionsAPI.rejected, (state, action) => {
+        debugger;
+        console.log("FAIL");
+        state.errorMsg = action.payload;
       });
   },
 });

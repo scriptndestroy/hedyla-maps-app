@@ -4,6 +4,8 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import Map from "./Map";
 import { Marker } from "./Marker";
+import TransitionAlert from "../alert/TransitionAlert";
+
 import {
   setEnd,
   setStart,
@@ -19,6 +21,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
+import { selectAlert, setOpen } from "../alert/alertSlice";
 
 var stat: any;
 const render = (status: Status) => {
@@ -29,14 +32,12 @@ const render = (status: Status) => {
 const Maps: React.VFC = () => {
   const [clicks, setClicks] = useState<google.maps.LatLng[]>([]);
   const [zoom, setZoom] = useState(3); // initial zoom
-  //   const [startValue, setStartValue] = React.useState("chicago, il");
-  //   const [endValue, setEndValue] = React.useState("chicago, il");
   const [center, setCenter] = useState<google.maps.LatLngLiteral>({
     lat: 0,
     lng: 0,
   });
 
-  const map = useAppSelector(selectMap);
+  const map = useAppSelector(selectMap);  
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -48,6 +49,17 @@ const Maps: React.VFC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map.distance, map.fee]);
+
+  useEffect(() => {    
+    if (map.errorMsg) {      
+      dispatch(
+        setOpen({
+          open: true,          
+          variant: "error",
+        })
+      );
+    }    
+  }, [map]);
 
   const onClick = (e: google.maps.MapMouseEvent) => {
     // avoid directly mutating state
@@ -193,8 +205,9 @@ const Maps: React.VFC = () => {
 
   return (
     <div style={{ display: "flex", height: "100%" }}>
+      <TransitionAlert />
       <Wrapper
-        apiKey={""}
+        apiKey={"AIzaSyD79G-tsrpY8YTY4W4jW65ZAV6OfSQLAIk"}
         render={render}
       >
         <Map

@@ -28,10 +28,8 @@ const Map: React.FC<MapProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
-
-  const mapsSelector = useAppSelector(selectMap);
-  // directionsRenderer.setMap(map ||null);
-
+  
+  const mapsSelector = useAppSelector(selectMap);  
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -46,8 +44,7 @@ const Map: React.FC<MapProps> = ({
   // see discussion in https://github.com/googlemaps/js-samples/issues/946
   useDeepCompareEffectForMaps(() => {
     if (map) {
-      map.setOptions(options);
-      directionsRenderer.setMap(map);
+      map.setOptions(options);      
     }
   }, [map, options]);
 

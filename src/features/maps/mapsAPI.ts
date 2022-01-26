@@ -1,11 +1,5 @@
-// A mock function to mimic making an async request for data
-export function fetchCount(amount = 1) {
-  return new Promise<{ data: number }>((resolve) =>
-    setTimeout(() => resolve({ data: amount }), 500)
-  );
-}
 
-export const calculateAndDisplayRoute = (
+export const calculateAndDisplayRoute = async (
   directionsService: google.maps.DirectionsService,
   directionsRenderer: google.maps.DirectionsRenderer,
   start: string,
@@ -23,10 +17,10 @@ export const calculateAndDisplayRoute = (
     })
     .then((response: any) => {
       directionsRenderer.setDirections(response);
-      return JSON.stringify(response.routes);
+      return response.routes[0].legs[0].distance;
     })
     .catch((e: any) => {
-      window.alert(`Directions request failed due to ${e}`);
-      return e;
+      //window.alert(`Directions request failed due to ${e}`);
+      return e.message;
     });
 };
