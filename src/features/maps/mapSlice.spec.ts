@@ -1,14 +1,16 @@
 import mapReducer, {
   callDirectionsAPI,MapState,setEnd,setStart
-} from '../maps/mapSlice';
+} from './mapSlice';
 
 describe('counter reducer', () => {
   const initialState: MapState = {
-    
+    fee:'',
+    price: '',
     end: '',
     start: '',
     status: 'idle',
-    distance: 0
+    distance: 0,
+    errorMsg: {}
   };
   // it('should handle initial state', () => {
   //   expect(counterReducer(undefined, { type: 'unknown' })).toEqual({

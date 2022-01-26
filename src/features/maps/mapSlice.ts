@@ -1,32 +1,43 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { calculateAndDisplayRoute } from "../counter/counterAPI";
+import { calculateAndDisplayRoute } from "./mapsAPI";
 
-export interface MapState {  
-  start: string;
+export interface MapState {
+  distance: number;
   end: string;
+  fee: string;
+  price: string;
+  start: string;
   status: "idle" | "loading" | "failed";
-  distance: number; 
+  errorMsg: any;
 }
 
-const initialState: MapState = {  
-  start: "",
+const initialState: MapState = {
+  distance: 0,
   end: "",
+  fee: "",
+  price: "",
+  start: "",
   status: "idle",
-  distance: 0  
+  errorMsg: null,
 };
 
 export const callDirectionsAPI = createAsyncThunk(
   "maps/callDirectionsAPI",
-  async (data: any) => {    
-    const response = await calculateAndDisplayRoute(
+  async (data: any, { rejectWithValue }) => {
+    const response: any = await calculateAndDisplayRoute(
       data.directionsService,
       data.directionsRenderer,
       data.start,
       data.end
     );
     // The value we return becomes the `fulfilled` action payload
-    return (response); 
+    debugger;
+    if (response.value) {
+      return response;
+    } else {
+      return rejectWithValue(response);
+    }
   }
 );
 
@@ -40,21 +51,32 @@ export const mapSlice = createSlice({
     },
     setEnd: (state, action: PayloadAction<string>) => {
       state.end = action.payload;
-    }  
+    },
+    setFee: (state, action: PayloadAction<string>) => {
+      state.fee = action.payload;
+    },
+    setPrice: (state, action: PayloadAction<string>) => {
+      state.price = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(callDirectionsAPI.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(callDirectionsAPI.fulfilled, (state, action) => {        
-        state.status = "idle";        
-        state.distance = JSON.parse(action.payload)[0].legs[0].distance?.value;
+      .addCase(callDirectionsAPI.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.distance = action.payload;
+      })
+      .addCase(callDirectionsAPI.rejected, (state, action) => {
+        debugger;
+        console.log("FAIL");
+        state.errorMsg = action.payload;
       });
   },
 });
 
-export const { setStart, setEnd } = mapSlice.actions;
+export const { setStart, setEnd, setFee, setPrice } = mapSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
