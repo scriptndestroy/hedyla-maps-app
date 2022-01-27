@@ -1,41 +1,43 @@
 // import "./style.css";
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { Wrapper, Status } from "@googlemaps/react-wrapper";
-import Map from "./Map";
-import { Marker } from "./Marker";
-import TransitionAlert from "../alert/TransitionAlert";
-
+import { Status, Wrapper } from "@googlemaps/react-wrapper";
 import {
-  setEnd,
-  setStart,
-  selectMap,
-  setFee,
-  setPrice,
-} from "../maps/mapSlice";
-import {
-  Box,
+  Button,
+  Divider,
   FormControl,
   InputLabel,
+  List,
+  ListItem,
   MenuItem,
   Select,
   TextField,
+  Toolbar,
+  Typography
 } from "@mui/material";
-import { selectAlert, setOpen } from "../alert/alertSlice";
+import { useEffect, useRef, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setOpen } from "../alert/alertSlice";
+import TransitionAlert from "../alert/TransitionAlert";
+import DrawerRes from "../drawer/DrawerRes";
+import {
+  selectMap,
+  setEnd,
+  setFee,
+  setPrice,
+  setStart
+} from "../maps/mapSlice";
+import Map from "./Map";
 
-var stat: any;
-const render = (status: Status) => {
-  stat = status;
+const render = (status: Status) => {  
   return <h1>{status}</h1>;
 };
 
 const Maps: React.VFC = () => {
-  const [clicks, setClicks] = useState<google.maps.LatLng[]>([]);
   const [zoom, setZoom] = useState(3); // initial zoom
   const [center, setCenter] = useState<google.maps.LatLngLiteral>({
     lat: 0,
     lng: 0,
   });
+  const apiCallRef = useRef((start: any, end: any) => {});
 
   const map = useAppSelector(selectMap);  
   const dispatch = useAppDispatch();
@@ -43,28 +45,23 @@ const Maps: React.VFC = () => {
   useEffect(() => {
     if (map.distance && map.fee) {
       let f = parseFloat(map.fee);
-      let r = `Total price: ${map.distance * f} €`;
+      let r = `${(map.distance / 1000) * f} €`;
       console.log(r);
       dispatch(setPrice(r));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map.distance, map.fee]);
 
-  useEffect(() => {    
-    if (map.errorMsg) {      
+  useEffect(() => {
+    if (map.errorMsg) {
       dispatch(
         setOpen({
-          open: true,          
+          open: true,
           variant: "error",
         })
       );
-    }    
-  }, [map]);
-
-  const onClick = (e: google.maps.MapMouseEvent) => {
-    // avoid directly mutating state
-    setClicks([...clicks, e.latLng!]);
-  };
+    }
+  }, [map, map.errorMsg]);
 
   const onIdle = (m: google.maps.Map) => {
     console.log("onIdle");
@@ -72,159 +69,121 @@ const Maps: React.VFC = () => {
     setCenter(m.getCenter()!.toJSON());
   };
 
-  const form = (
-    <div
-      style={{
-        flexBasis: "250px",
-        height: "100%",
-        overflow: "auto",
-      }}
-    >
-      <Box style={{ padding: "1rem" }}>
-        <FormControl fullWidth className={"space-inputs"}>
-          <TextField
-            type="number"
-            id="zoom"
-            name="zoom"
-            value={zoom}
-            onChange={(event) => setZoom(Number(event.target.value))}
-            label="Zoom"
-            variant="outlined"
-          />
-        </FormControl>
-        <FormControl fullWidth className={"space-inputs"}>
-          <TextField
-            type="number"
-            id="lat"
-            name="lat"
-            value={center.lat}
-            onChange={(event) =>
-              setCenter({ ...center, lat: Number(event.target.value) })
-            }
-            label="Latitude"
-            variant="outlined"
-          />
-        </FormControl>
-        <FormControl fullWidth className={"space-inputs"}>
-          <TextField
-            type="number"
-            id="lng"
-            name="lng"
-            value={center.lng}
-            onChange={(event) =>
-              setCenter({ ...center, lng: Number(event.target.value) })
-            }
-            label="Longitude"
-            variant="outlined"
-          />
-        </FormControl>
-        <FormControl fullWidth className={"space-inputs"}>
-          <InputLabel id="start-label">Start</InputLabel>
-          <Select
-            variant="outlined"
-            labelId="start-label"
-            id="start"
-            value={map.start}
-            label="Start"
-            name="start"
-            onChange={(e) => dispatch(setStart(e.target.value))}
-          >
-            <MenuItem value="{'lat': 23.644524198573688,'lng': 15.029296875}">
-              Point 1
-            </MenuItem>
-            <MenuItem value="madrid, es">Madrid</MenuItem>
-            <MenuItem value="chicago, il">Chicago</MenuItem>
-            <MenuItem value="st louis, mo">St Louis</MenuItem>
-            <MenuItem value="joplin, mo">Joplin, MO</MenuItem>
-            <MenuItem value="oklahoma city, ok">Oklahoma City</MenuItem>
-            <MenuItem value="amarillo, tx">Amarillo</MenuItem>
-            <MenuItem value="gallup, nm">Gallup, NM</MenuItem>
-            <MenuItem value="flagstaff, az">Flagstaff, AZ</MenuItem>
-            <MenuItem value="winona, az">Winona</MenuItem>
-            <MenuItem value="kingman, az">Kingman</MenuItem>
-            <MenuItem value="barstow, ca">Barstow</MenuItem>
-            <MenuItem value="san bernardino, ca">San Bernardino</MenuItem>
-            <MenuItem value="los angeles, ca">Los Angeles</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth className={"space-inputs"}>
-          <InputLabel id="end-label">End</InputLabel>
-          <Select
-            variant="outlined"
-            labelId="end-label"
-            id="end"
-            name="end"
-            onChange={(e) => dispatch(setEnd(e.target.value))}
-            value={map.end}
-            label="End"
-          >
-            <MenuItem value='"lat": 13.838079936422464,"lng": 26.279296875'>
-              Point 2
-            </MenuItem>
-            <MenuItem value="barcelona, es">Barcelona</MenuItem>
-            <MenuItem value="chicago, il">Chicago</MenuItem>
-            <MenuItem value="st louis, mo">St Louis</MenuItem>
-            <MenuItem value="joplin, mo">Joplin, MO</MenuItem>
-            <MenuItem value="oklahoma city, ok">Oklahoma City</MenuItem>
-            <MenuItem value="amarillo, tx">Amarillo</MenuItem>
-            <MenuItem value="gallup, nm">Gallup, NM</MenuItem>
-            <MenuItem value="flagstaff, az">Flagstaff, AZ</MenuItem>
-            <MenuItem value="winona, az">Winona</MenuItem>
-            <MenuItem value="kingman, az">Kingman</MenuItem>
-            <MenuItem value="barstow, ca">Barstow</MenuItem>
-            <MenuItem value="san bernardino, ca">San Bernardino</MenuItem>
-            <MenuItem value="los angeles, ca">Los Angeles</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth className={"space-inputs"}>
-          <InputLabel id="fees-label">Fees</InputLabel>
-          <Select
-            variant="outlined"
-            labelId="fees-label"
-            id="fees"
-            name="fees"
-            onChange={(e) => dispatch(setFee(e.target.value))}
-            value={map.fee}
-            label="Fees"
-          >
-            <MenuItem value="0.50">Truck</MenuItem>
-            <MenuItem value="0.25">Van</MenuItem>
-          </Select>
-        </FormControl>
+  const handleSearchClick = () => {
+    if (apiCallRef?.current) {
+      apiCallRef.current(map.start, map.end);
+    }
+  };
 
-        <h3>
-          {clicks.length === 0 ? "Click on map to add markers" : "Clicks"}
-        </h3>
-        {clicks.map((latLng, i) => (
-          <pre key={i}>{JSON.stringify(latLng.toJSON(), null, 2)}</pre>
-        ))}
-        <button onClick={() => setClicks([])}>Clear</button>
-      </Box>
+  const drawer = (
+    <div>
+      <Toolbar />
+      <Divider />
+      <List>
+        <ListItem key={"start"}>
+          <FormControl fullWidth className={"space-inputs"}>
+            <TextField
+              type="text"
+              id="start"
+              name="start"
+              value={map.start}
+              onChange={(e) => dispatch(setStart(e.target.value))}
+              label="Start"
+              variant="outlined"
+            />
+          </FormControl>
+        </ListItem>
+        <ListItem key={"end"}>
+          <FormControl fullWidth className={"space-inputs"}>
+            <TextField
+              type="text"
+              id="end"
+              name="end"
+              onChange={(e) => dispatch(setEnd(e.target.value))}
+              value={map.end}
+              label="End"
+              variant="outlined"
+            />
+          </FormControl>
+        </ListItem>
+        <ListItem key={"fees"}>
+          <FormControl fullWidth className={"space-inputs"}>
+            <InputLabel id="fees-label">Fees</InputLabel>
+            <Select
+              variant="outlined"
+              labelId="fees-label"
+              id="fees"
+              name="fees"
+              onChange={(e) => dispatch(setFee(e.target.value))}
+              value={map.fee}
+              label="Fees"
+            >
+              <MenuItem value="0.50">Truck</MenuItem>
+              <MenuItem value="0.25">Van</MenuItem>
+            </Select>
+          </FormControl>
+        </ListItem>
+        <ListItem key={"search"}>
+          <FormControl fullWidth className={"space-inputs"}>
+            <Button onClick={handleSearchClick}>Search</Button>
+          </FormControl>
+        </ListItem>
+        <ListItem key={"price"}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            component="div"
+            fontWeight={"bold"}
+          >
+            Price
+          </Typography>
+        </ListItem>
+        <ListItem>
+          <Typography variant="subtitle1" gutterBottom component="div">
+            {map.price}
+          </Typography>
+        </ListItem>
+        <ListItem>
+          <Typography
+            variant="h5"
+            gutterBottom
+            component="div"
+            fontWeight={"bold"}
+          >
+            Distance
+          </Typography>
+        </ListItem>
+        <ListItem>
+          <Typography variant="subtitle1" gutterBottom component="div">
+            {`${Math.round(map.distance / 1000)} km`}
+          </Typography>
+        </ListItem>
+      </List>
     </div>
   );
 
   return (
-    <div style={{ display: "flex", height: "100%" }}>
+    <DrawerRes elements={drawer}>
       <TransitionAlert />
       <Wrapper
-        apiKey={"AIzaSyD79G-tsrpY8YTY4W4jW65ZAV6OfSQLAIk"}
+        apiKey={""}
         render={render}
       >
         <Map
+          callApi={apiCallRef}
           center={center}
-          onClick={onClick}
           onIdle={onIdle}
           zoom={zoom}
-          style={{ flexGrow: "1", height: "100%" }}
-        >
-          {clicks.map((latLng, i) => (
-            <Marker key={i} position={latLng} />
-          ))}
-        </Map>
+          style={{
+            flexGrow: "1",
+            height: "90%",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        ></Map>
       </Wrapper>
       {/* Basic form for controlling center and zoom of map. */}
-      {form}
-    </div>
+    </DrawerRes>
   );
 };
 
