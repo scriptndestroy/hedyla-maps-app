@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/hedyla-maps-app/static/css/main.64adf577.css",
-    "main.js": "/hedyla-maps-app/static/js/main.c828e3bc.js",
+    "main.js": "/hedyla-maps-app/static/js/main.77097210.js",
     "static/media/roboto-all-500-normal.woff": "/hedyla-maps-app/static/media/roboto-all-500-normal.52cb737b682eb9661ee1.woff",
     "static/media/roboto-all-700-normal.woff": "/hedyla-maps-app/static/media/roboto-all-700-normal.ef6d1d09b20b877fee4e.woff",
     "static/media/roboto-all-400-normal.woff": "/hedyla-maps-app/static/media/roboto-all-400-normal.376ea5d93f71583052f6.woff",
@@ -36,10 +36,10 @@
     "static/media/roboto-greek-ext-700-normal.woff2": "/hedyla-maps-app/static/media/roboto-greek-ext-700-normal.9674bc0ae12c2551d9d1.woff2",
     "index.html": "/hedyla-maps-app/index.html",
     "main.64adf577.css.map": "/hedyla-maps-app/static/css/main.64adf577.css.map",
-    "main.c828e3bc.js.map": "/hedyla-maps-app/static/js/main.c828e3bc.js.map"
+    "main.77097210.js.map": "/hedyla-maps-app/static/js/main.77097210.js.map"
   },
   "entrypoints": [
     "static/css/main.64adf577.css",
-    "static/js/main.c828e3bc.js"
+    "static/js/main.77097210.js"
   ]
 }
