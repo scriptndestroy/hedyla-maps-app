@@ -6,8 +6,8 @@ import {
   useRef,
   useState,
 } from "react";
-
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { selectAlert, setOpen } from "../alert/alertSlice";
 import { callDirectionsAPI, selectMap } from "./mapSlice";
 import { useDeepCompareEffectForMaps } from "./utils";
 
@@ -15,21 +15,23 @@ interface MapProps extends google.maps.MapOptions {
   style: { [key: string]: string };
   onClick?: (e: google.maps.MapMouseEvent) => void;
   onIdle?: (map: google.maps.Map) => void;
+  callApi: any;
 }
 var directionsRenderer: any;
 var directionsService: any;
 
 const Map: React.FC<MapProps> = ({
-  onClick,
   onIdle,
   children,
   style,
+  callApi,
   ...options
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
-  
-  const mapsSelector = useAppSelector(selectMap);  
+
+  const mapsSelector = useAppSelector(selectMap);
+  const alertSelector = useAppSelector(selectAlert);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -40,11 +42,17 @@ const Map: React.FC<MapProps> = ({
     }
   }, [ref, map]);
 
+  useEffect(() => {
+    callApi.current = handleCall;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [callApi, map]);
+
   // because React does not do deep comparisons, a custom hook is used
   // see discussion in https://github.com/googlemaps/js-samples/issues/946
   useDeepCompareEffectForMaps(() => {
     if (map) {
-      map.setOptions(options);      
+      map.setOptions(options);
+      directionsRenderer.setMap(map);
     }
   }, [map, options]);
 
@@ -54,34 +62,41 @@ const Map: React.FC<MapProps> = ({
         google.maps.event.clearListeners(map, eventName)
       );
 
-      if (onClick) {
-        map.addListener("click", onClick);
-      }
+      // if (onClick) {
+      //   map.addListener("click", onClick);
+      // }
 
       if (onIdle) {
         map.addListener("idle", () => onIdle(map));
       }
     }
-  }, [map, onClick, onIdle]);
+  }, [map, onIdle]);
+
+  const handleCall = (start: any, end: any) => {
+    dispatch(
+      callDirectionsAPI({
+        directionsService,
+        directionsRenderer,
+        start,
+        end,
+        map,
+      })
+    ).then((res) => {
+      directionsRenderer.setMap(map);
+    });
+  };
 
   useEffect(() => {
-    if (mapsSelector.start && mapsSelector.end) {
-      let start = mapsSelector.start;
-      let end = mapsSelector.end;
-      directionsRenderer.setMap(null);
+    if (mapsSelector.distance !== 0 && alertSelector.open) {
       dispatch(
-        callDirectionsAPI({
-          directionsService,
-          directionsRenderer,
-          start,
-          end,
-          map,
+        setOpen({
+          open: false,
+          variant: "error",
         })
       );
-      directionsRenderer.setMap(map);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapsSelector.start, mapsSelector.end]);
+  }, [mapsSelector, alertSelector]);
 
   return (
     <>

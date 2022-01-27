@@ -14,7 +14,7 @@ const TransitionAlert = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <Box sx={{ width: "100%", zIndex: 9999, position: "absolute" }}>
+    <Box sx={{ width: "100%", zIndex: 1, position: "relative" }}>
       <Collapse in={alert.open}>
         <Alert
           severity={alert.variant}
@@ -27,7 +27,7 @@ const TransitionAlert = () => {
                 dispatch(
                   setOpen({
                     open: false,
-                    variant: "error",
+                    variant: "error"
                   })
                 );
               }}

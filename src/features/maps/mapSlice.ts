@@ -10,6 +10,9 @@ export interface MapState {
   start: string;
   status: "idle" | "loading" | "failed";
   errorMsg: any;
+  map: any;
+  directionsRenderer: any;
+  directionsService: any;
 }
 
 const initialState: MapState = {
@@ -20,6 +23,9 @@ const initialState: MapState = {
   start: "",
   status: "idle",
   errorMsg: null,
+  map: null,
+  directionsRenderer: undefined,
+  directionsService: undefined,
 };
 
 export const callDirectionsAPI = createAsyncThunk(
@@ -29,10 +35,9 @@ export const callDirectionsAPI = createAsyncThunk(
       data.directionsService,
       data.directionsRenderer,
       data.start,
-      data.end
+      data.end      
     );
     // The value we return becomes the `fulfilled` action payload
-    debugger;
     if (response.value) {
       return response;
     } else {
@@ -66,12 +71,14 @@ export const mapSlice = createSlice({
       })
       .addCase(callDirectionsAPI.fulfilled, (state, action) => {
         state.status = "idle";
-        state.distance = action.payload;
+        state.distance = action.payload.value;
+        state.errorMsg = undefined;
       })
       .addCase(callDirectionsAPI.rejected, (state, action) => {
-        debugger;
         console.log("FAIL");
         state.errorMsg = action.payload;
+        state.distance = 0;
+        state.price = "0";
       });
   },
 });

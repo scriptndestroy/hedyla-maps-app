@@ -10,7 +10,10 @@ describe('counter reducer', () => {
     start: '',
     status: 'idle',
     distance: 0,
-    errorMsg: {}
+    errorMsg: {},
+    map: null,
+    directionsRenderer: undefined,
+    directionsService: undefined
   };
   // it('should handle initial state', () => {
   //   expect(counterReducer(undefined, { type: 'unknown' })).toEqual({
