@@ -38,7 +38,7 @@ const ResponsiveDrawer: React.FC<any> = ({ children, elements }) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Responsive drawer
+            Directions searcher
           </Typography>
         </Toolbar>
       </AppBar>

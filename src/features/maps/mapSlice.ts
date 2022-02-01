@@ -10,9 +10,6 @@ export interface MapState {
   start: string;
   status: "idle" | "loading" | "failed";
   errorMsg: any;
-  map: any;
-  directionsRenderer: any;
-  directionsService: any;
 }
 
 const initialState: MapState = {
@@ -22,10 +19,7 @@ const initialState: MapState = {
   price: "",
   start: "",
   status: "idle",
-  errorMsg: null,
-  map: null,
-  directionsRenderer: undefined,
-  directionsService: undefined,
+  errorMsg: null,  
 };
 
 export const callDirectionsAPI = createAsyncThunk(
